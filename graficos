@@ -1,0 +1,193 @@
+--[[
+    SAMSUNG & DELTA - ULTIMATE INTERFACE (V6 - FINAL CORREGIDO)
+    Basado en tu V5 original.
+    Cambios y Modos:
+    1. Se mantienen HORA DORADA, MORADO, NOCHE y DÍA originales.
+    2. Sistema de arrastre anti-glitch y minimizado (🖼️).
+    3. NUEVO Modo: applyPinkSunset(): Atardecer fotorrealista, cielo rosado/fucsia natural con contrastes.
+--]]
+
+local Lighting = game:GetService("Lighting")
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+local pgui = player:WaitForChild("PlayerGui")
+
+-- IDs de Cielos y Texturas
+local GOLDEN_SKY_ID = "rbxassetid://15220671755" 
+local NIGHT_SKY_ID = "rbxassetid://1206410739"
+local REALISTIC_PURPLE_SKY_ID = "rbxassetid://1206190535"
+-- El mismo cielo que el dorado, pero la atmósfera hará el trabajo rosado
+local PINK_SKY_BASE_ID = "rbxassetid://15220671755" 
+
+-- 1. LIMPIEZA TOTAL
+local function clear()
+    for _, v in pairs(Lighting:GetChildren()) do
+        if v.Name == "CustomEffect" or v.ClassName == "Sky" or v.ClassName == "Atmosphere" then 
+            v:Destroy() 
+        end
+    end
+    Lighting.ClockTime = 12
+    Lighting.Brightness = 2
+    Lighting.ExposureCompensation = 0
+    Lighting.FogEnd = 100000
+    Lighting.Ambient = Color3.fromRGB(127, 127, 127)
+    Lighting.OutdoorAmbient = Color3.fromRGB(127, 127, 127)
+end
+
+-- --- FUNCIONES DE AMBIENTE ---
+
+local function applyPinkSunset() -- EL NUEVO ATARDECER ROSADO CON CONTRASTES REALES
+    clear()
+    
+    -- ColorCorrection equilibrado para contraste natural, no un filtro total
+    local color = Instance.new("ColorCorrectionEffect", Lighting); color.Name = "CustomEffect"
+    color.Saturation = 0.25; -- Saturación sutil
+    color.Contrast = 0.15; -- Contraste ligero para definir formas
+    color.TintColor = Color3.fromRGB(245, 230, 255) -- Tinte muy suave, casi blanco con toque fucsia
+    
+    -- Bloom para el resplandor de las luces
+    local bloom = Instance.new("BloomEffect", Lighting); bloom.Name = "CustomEffect"
+    bloom.Intensity = 0.4; bloom.Size = 16; bloom.Threshold = 0.75
+
+    -- El secreto: Atmósfera Pesada con dispersión magenta/fucsia
+    local atmosphere = Instance.new("Atmosphere", Lighting); atmosphere.Name = "CustomEffect"
+    atmosphere.Density = 0.4; -- Neblina espesa para que la luz se disperse
+    atmosphere.Offset = 0.05 -- Neblina cerca del suelo
+    atmosphere.Color = Color3.fromRGB(220, 180, 200) -- Neblina color fucsia suave
+    atmosphere.Decay = Color3.fromRGB(180, 50, 150) -- La luz al dispersarse se vuelve magenta/fucsia intenso
+    atmosphere.Glare = 0.5 -- El sol se dispersa mucho
+    atmosphere.Haze = 1.8 -- Bruma atmosférica densa
+
+    -- Cielo fotorrealista (usamos el mismo que el dorado, la atmósfera hará el tinte)
+    local sky = Instance.new("Sky", Lighting); sky.Name = "CustomEffect"
+    sky.SkyboxBk = PINK_SKY_BASE_ID; sky.SkyboxDn = PINK_SKY_BASE_ID; sky.SkyboxFt = PINK_SKY_BASE_ID
+    sky.SkyboxLf = PINK_SKY_BASE_ID; sky.SkyboxRt = PINK_SKY_BASE_ID; sky.SkyboxUp = PINK_SKY_BASE_ID
+    
+    -- Sol fotorrealista
+    sky.SunTextureId = "rbxassetid://1084313264"; sky.SunAngularSize = 12
+    
+    -- Configuración de luz para realismo
+    Lighting.ClockTime = 17.8 -- Hora del "Golden Hour" pero tirando a violeta
+    Lighting.Brightness = 2.4 -- Brillo natural
+    Lighting.ExposureCompensation = 0.0 -- Exposición estándar
+    
+    -- Ajuste sutil de luces ambientales para integrar el color magenta
+    Lighting.Ambient = Color3.fromRGB(120, 100, 130) 
+    Lighting.OutdoorAmbient = Color3.fromRGB(130, 110, 140)
+end
+
+local function applyGoldenHour() -- TU FUNCIÓN ORIGINAL V5
+    clear()
+    local color = Instance.new("ColorCorrectionEffect", Lighting); color.Name = "CustomEffect"
+    color.Saturation = 0.2; color.Contrast = 0.1; color.TintColor = Color3.fromRGB(255, 230, 200) 
+    local bloom = Instance.new("BloomEffect", Lighting); bloom.Name = "CustomEffect"
+    bloom.Intensity = 0.35; bloom.Size = 14; bloom.Threshold = 0.8
+    local atmosphere = Instance.new("Atmosphere", Lighting); atmosphere.Name = "CustomEffect"
+    atmosphere.Density = 0.35; atmosphere.Offset = 0.05
+    atmosphere.Color = Color3.fromRGB(240, 220, 190)
+    atmosphere.Decay = Color3.fromRGB(150, 130, 100)
+    atmosphere.Glare = 0.6; atmosphere.Haze = 2
+    local sky = Instance.new("Sky", Lighting); sky.Name = "CustomEffect"
+    sky.SkyboxBk = GOLDEN_SKY_ID; sky.SkyboxDn = GOLDEN_SKY_ID; sky.SkyboxFt = GOLDEN_SKY_ID
+    sky.SkyboxLf = GOLDEN_SKY_ID; sky.SkyboxRt = GOLDEN_SKY_ID; sky.SkyboxUp = GOLDEN_SKY_ID
+    sky.SunTextureId = "rbxassetid://1084313264"; sky.SunAngularSize = 12
+    Lighting.ClockTime = 17.5; Lighting.Brightness = 2
+    Lighting.Ambient = Color3.fromRGB(130, 120, 110); Lighting.OutdoorAmbient = Color3.fromRGB(150, 140, 130)
+end
+
+local function applyRealisticPurpleVibe() -- TU FUNCIÓN ORIGINAL V5
+    clear()
+    local color = Instance.new("ColorCorrectionEffect", Lighting); color.Name = "CustomEffect"
+    color.Saturation = 0.2; color.Contrast = 0.12; color.TintColor = Color3.fromRGB(235, 210, 255)
+    local atm = Instance.new("Atmosphere", Lighting); atm.Name = "CustomEffect"
+    atm.Density = 0.25; atm.Color = Color3.fromRGB(140, 110, 170); atm.Glare = 0.4; atm.Haze = 1.2
+    local sky = Instance.new("Sky", Lighting); sky.Name = "CustomEffect"
+    sky.SkyboxBk = REALISTIC_PURPLE_SKY_ID; sky.SkyboxDn = REALISTIC_PURPLE_SKY_ID; sky.SkyboxFt = REALISTIC_PURPLE_SKY_ID
+    sky.SkyboxLf = REALISTIC_PURPLE_SKY_ID; sky.SkyboxRt = REALISTIC_PURPLE_SKY_ID; sky.SkyboxUp = REALISTIC_PURPLE_SKY_ID
+    Lighting.ClockTime = 18.1; Lighting.Brightness = 2.4
+end
+
+local function applyNight() -- TU FUNCIÓN ORIGINAL V5 RECUPERADA
+    clear()
+    local sky = Instance.new("Sky", Lighting); sky.Name = "CustomEffect"
+    sky.SkyboxBk = NIGHT_SKY_ID; sky.SkyboxDn = NIGHT_SKY_ID; sky.SkyboxFt = NIGHT_SKY_ID
+    sky.SkyboxLf = NIGHT_SKY_ID; sky.SkyboxRt = NIGHT_SKY_ID; sky.SkyboxUp = NIGHT_SKY_ID
+    Lighting.ClockTime = 0
+end
+
+-- --- CREACIÓN DE INTERFAZ (ESTRUCTURA V5 - EXPANDIDA) ---
+if pgui:FindFirstChild("AmbientesGui") then pgui.AmbientesGui:Destroy() end
+local screen = Instance.new("ScreenGui", pgui); screen.Name = "AmbientesGui"; screen.ResetOnSpawn = false
+
+local mainFrame = Instance.new("Frame", screen)
+mainFrame.Size = UDim2.new(0, 175, 0, 310); -- Un poco más alto para el nuevo botón
+mainFrame.Position = UDim2.new(0.05, 0, 0.3, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15); mainFrame.Active = true
+Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 12)
+Instance.new("UIStroke", mainFrame).Color = Color3.fromRGB(255, 180, 100) -- Borde cálido
+
+local minBtn = Instance.new("TextButton", screen)
+minBtn.Size = UDim2.new(0, 50, 0, 50); minBtn.Position = mainFrame.Position
+minBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30); minBtn.Text = "🖼️"; minBtn.TextSize = 25
+minBtn.Visible = false; minBtn.Active = true
+Instance.new("UICorner", minBtn).CornerRadius = UDim.new(0, 12)
+
+local function toggleMenu()
+    if mainFrame.Visible then
+        mainFrame.Visible = false; minBtn.Position = mainFrame.Position; minBtn.Visible = true
+    else
+        mainFrame.Visible = true; mainFrame.Position = minBtn.Position; minBtn.Visible = false
+    end
+end
+
+local closeX = Instance.new("TextButton", mainFrame)
+closeX.Size = UDim2.new(0, 30, 0, 30); closeX.Position = UDim2.new(0.8, 0, 0.02, 0)
+closeX.BackgroundTransparency = 1; closeX.Text = "➖"; closeX.TextColor3 = Color3.new(1,1,1)
+closeX.Activated:Connect(toggleMenu); minBtn.Activated:Connect(toggleMenu)
+
+local function makeBtn(name, pos, color, action)
+    local btn = Instance.new("TextButton", mainFrame)
+    btn.Size = UDim2.new(0.85, 0, 0, 35); btn.Position = pos; btn.BackgroundColor3 = color
+    btn.Text = name; btn.TextColor3 = Color3.new(1,1,1); btn.Font = Enum.Font.GothamBold; btn.TextSize = 10
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6); btn.Activated:Connect(action)
+end
+
+-- Botones organizados (Se mantiene el orden de tu V5 y se añade el rosado)
+makeBtn("🌸 ATARDECER ROSADO", UDim2.new(0.075, 0, 0.12, 0), Color3.fromRGB(200, 100, 150), applyPinkSunset)
+makeBtn("🌅 HORA DORADA", UDim2.new(0.075, 0, 0.28, 0), Color3.fromRGB(180, 100, 20), applyGoldenHour)
+makeBtn("💜 MORADO REALISTA", UDim2.new(0.075, 0, 0.44, 0), Color3.fromRGB(80, 40, 130), applyRealisticPurpleVibe)
+makeBtn("🌌 NOCHE", UDim2.new(0.075, 0, 0.60, 0), Color3.fromRGB(30, 40, 100), applyNight)
+makeBtn("☀️ DÍA VÍVIDO", UDim2.new(0.075, 0, 0.76, 0), Color3.fromRGB(0, 100, 180), function() clear(); Lighting.ClockTime = 14 end)
+makeBtn("❌ RESET", UDim2.new(0.075, 0, 0.90, 0), Color3.fromRGB(60, 20, 20), clear)
+
+-- --- SISTEMA DE ARRASTRE V5 ORIGINAL (ANTI-GLITCH) ---
+local function setupDraggable(guiObject)
+    local draggingInput = nil
+    local dragStart, startPos
+
+    guiObject.InputBegan:Connect(function(input)
+        if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and draggingInput == nil then
+            draggingInput = input
+            dragStart = input.Position
+            startPos = guiObject.Position
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if input == draggingInput then
+            local delta = input.Position - dragStart
+            guiObject.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+
+    UserInputService.InputEnded:Connect(function(input)
+        if input == draggingInput then
+            draggingInput = nil
+        end
+    end)
+end
+
+setupDraggable(mainFrame)
+setupDraggable(minBtn)
