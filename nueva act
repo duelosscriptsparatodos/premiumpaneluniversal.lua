@@ -1,0 +1,86 @@
+-- [[ CREDITS: DUELO 5950 ]]
+local lPlayer = game.Players.LocalPlayer
+
+-- --- INTERFAZ PREMIUM ---
+local sg = Instance.new("ScreenGui", game:GetService("CoreGui"))
+sg.Name = "Duelo5950_Hub"
+
+local main = Instance.new("Frame", sg)
+main.Size = UDim2.new(0, 260, 0, 160)
+main.Position = UDim2.new(0.5, -130, 0.2, 0)
+main.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+main.BorderSizePixel = 0
+main.Draggable = true
+main.Active = true
+
+-- Bordes redondeados y sombra
+local corner = Instance.new("UICorner", main)
+corner.CornerRadius = UDim.new(0, 15)
+
+local stroke = Instance.new("UIStroke", main)
+stroke.Thickness = 2
+stroke.Color = Color3.fromRGB(255, 0, 255) -- Color Neón
+
+-- Título del Creador
+local title = Instance.new("TextLabel", main)
+title.Size = UDim2.new(1, 0, 0, 40)
+title.BackgroundTransparency = 1
+title.Text = "DUELO 5950"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 18
+
+local sub = Instance.new("TextLabel", main)
+sub.Size = UDim2.new(1, 0, 0, 20)
+sub.Position = UDim2.new(0, 0, 0, 30)
+sub.BackgroundTransparency = 1
+sub.Text = "Easter Event Snatcher"
+sub.TextColor3 = Color3.fromRGB(150, 150, 150)
+sub.Font = Enum.Font.Gotham
+sub.TextSize = 12
+
+-- Botón de Acción
+local btn = Instance.new("TextButton", main)
+btn.Size = UDim2.new(0, 200, 0, 50)
+btn.Position = UDim2.new(0.5, -100, 0.6, 0)
+btn.BackgroundColor3 = Color3.fromRGB(255, 0, 255)
+btn.Text = "INICIAR RECOLECCIÓN"
+btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+btn.Font = Enum.Font.GothamBold
+btn.TextSize = 14
+
+local btnCorner = Instance.new("UICorner", btn)
+btnCorner.CornerRadius = UDim.new(0, 10)
+
+-- --- LÓGICA DE TELEPORT (TU CÓDIGO GANADOR) ---
+btn.MouseButton1Click:Connect(function()
+    local char = lPlayer.Character
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+    
+    if root then
+        btn.Text = "ESCANEANDO MAPA..."
+        btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+        
+        local encontrado = false
+        for _, obj in pairs(workspace:GetDescendants()) do
+            local nombre = obj.Name:lower()
+            -- Filtros confirmados en tu consola
+            if nombre:find("egg") or nombre == "jumper" or nombre == "eggsplosion" or nombre == "headegg" then
+                local target = obj:IsA("BasePart") and obj or obj:FindFirstChildWhichIsA("BasePart", true)
+                
+                if target then
+                    encontrado = true
+                    root.CFrame = target.CFrame
+                    task.wait(0.6) -- Tiempo de recolección
+                end
+            end
+        end
+        
+        btn.Text = encontrado and "¡TODO RECOGIDO!" or "SIN HUEVOS"
+        btn.BackgroundColor3 = encontrado and Color3.fromRGB(0, 255, 100) or Color3.fromRGB(255, 50, 50)
+        
+        task.wait(2)
+        btn.Text = "INICIAR RECOLECCIÓN"
+        btn.BackgroundColor3 = Color3.fromRGB(255, 0, 255)
+    end
+end)
