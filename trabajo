@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10D GUAVIARE INTELLIGENCE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Source+Code+Pro&display=swap" rel="stylesheet">
+    <style>
+        :root { --green: #00ff66; --bg: #000; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            background: var(--bg); 
+            color: #fff; 
+            font-family: 'Orbitron', sans-serif; 
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto; 
+        }
+
+        #matrix { position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.15; }
+
+        /* NAVEGACIÓN */
+        #nav-tabs { 
+            position: sticky; top: 0; width: 100%; height: 60px; 
+            background: #1a1a1a; border-bottom: 1px solid var(--green); 
+            display: none; align-items: flex-end; padding-left: 10px; z-index: 6000; 
+        }
+        .tab { 
+            padding: 12px 15px; background: #333; color: #888; border: 1px solid var(--green);
+            border-bottom: none; cursor: pointer; font-size: 0.65rem; margin-right: 5px;
+            border-radius: 8px 8px 0 0; transition: 0.3s;
+        }
+        .tab.active { background: var(--bg); color: var(--green); font-weight: bold; }
+
+        /* PÁGINAS */
+        .page-content { display: none; width: 100%; padding: 20px 15px; }
+        .page-active { display: block; }
+
+        /* LAYOUT ADAPTABLE */
+        .layout { display: flex; flex-direction: column; gap: 20px; }
+        @media (min-width: 768px) {
+            .layout { flex-direction: row; height: 85vh; }
+            .sidebar { width: 350px; }
+            .terminal { flex: 1; }
+        }
+
+        .sidebar { border: 1px solid var(--green); padding: 15px; background: rgba(0,255,102,0.05); }
+        .photo-main { width: 100%; border: 1px solid var(--green); filter: grayscale(1); margin-bottom: 10px; }
+        .image-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .photo-small { width: 100%; height: 100px; object-fit: cover; border: 1px solid var(--green); opacity: 0.7; }
+
+        .terminal { background: rgba(0,0,0,0.9); border: 1px solid var(--green); display: flex; flex-direction: column; min-height: 450px; }
+        .chat { padding: 20px; color: var(--green); font-family: 'Source Code Pro', monospace; flex-grow: 1; overflow-y: auto; }
+        .controls { padding: 15px; display: grid; gap: 10px; border-top: 1px solid var(--green); }
+        .q-btn { background: transparent; border: 1px solid #004411; color: #668866; padding: 15px; cursor: pointer; font-size: 0.7rem; font-family: 'Orbitron'; text-align: left; }
+        .ai-answer { color: #fff; margin-top: 15px; border-left: 2px solid var(--green); padding-left: 10px; }
+
+        /* GUAVIARE INFO */
+        .data-container { max-width: 900px; margin: 0 auto; border: 1px solid var(--green); padding: 25px; background: rgba(0,255,102,0.02); }
+        .info-block { margin-bottom: 25px; border-left: 2px solid var(--green); padding-left: 15px; }
+        .info-block h2 { font-size: 1.1rem; color: var(--green); margin-bottom: 8px; }
+        .info-block p { font-family: 'Source Code Pro', monospace; color: #ccc; font-size: 0.9rem; }
+
+        /* INTRO Y LOGIN */
+        #login-screen { position: fixed; inset: 0; z-index: 7000; background: #000; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
+        #intro-screen { position: fixed; inset: 0; z-index: 3000; background: #000; display: none; flex-direction: column; justify-content: center; align-items: center; }
+        .name-container { opacity: 0; transform: translateY(20px); transition: all 0.8s ease; }
+        .show-element { opacity: 1 !important; transform: translateY(0) !important; }
+        .names { color: var(--green); letter-spacing: 6px; font-size: 1.2rem; margin: 10px; }
+        .grade { font-size: 2.5rem; margin-top: 20px; opacity: 0; transition: all 1s ease; }
+
+        #scanner-overlay { position: fixed; inset: 0; z-index: 4000; background: #000; display: none; justify-content: center; align-items: center; flex-direction: column; }
+        .scan-line-box { width: 200px; height: 200px; border: 1px solid var(--green); position: relative; overflow: hidden; }
+        .scan-bar { width: 100%; height: 2px; background: var(--green); position: absolute; animation: scanAnim 1.5s infinite; }
+        @keyframes scanAnim { 0% { top: 0; } 100% { top: 100%; } }
+    </style>
+</head>
+<body>
+
+    <canvas id="matrix"></canvas>
+
+    <nav id="nav-tabs">
+        <div class="tab active" onclick="changeTab('ia')">SISTEMA IA</div>
+        <div class="tab" onclick="changeTab('guaviare')">INFO GUAVIARE</div>
+    </nav>
+
+    <div id="ia-tab" class="page-content page-active">
+        <div class="layout">
+            <div class="sidebar">
+                <img src="https://tse4.mm.bing.net/th/id/OIP.sOi1j8JfuuwxHHHcJRfOWAHaE8?rs=1&pid=ImgDetMain&o=7&rm=3" class="photo-main">
+                <div class="image-grid">
+                    <img src="https://cdn01.pucp.education/idehpucp/images/2024/03/farc.jpg" class="photo-small">
+                    <img src="https://imagenes-stg.canalcapital-dev.com/wp-content/uploads/2024/03/26154049/Drupalamiento-forzado-2.jpg" class="photo-small">
+                    <img src="https://mutante.org/wp-content/uploads/2022/10/ETCR2-scaled.jpg" class="photo-small">
+                    <img src="https://i.ntdtv.com/assets/uploads/2022/08/GettyImages-1229623029-1200x675.jpg" class="photo-small">
+                </div>
+            </div>
+            <div class="terminal">
+                <div class="chat" id="chat">> Sistema IA en línea. Esperando consultas...</div>
+                <div class="controls">
+                    <button class="q-btn" onclick="startAI(1)">1. CAUSAS SOCIALES Y ECONÓMICAS?</button>
+                    <button class="q-btn" onclick="startAI(2)">2. IMPACTO EN SUPERVIVENCIA CULTURAL?</button>
+                    <button class="q-btn" onclick="startAI(3)">3. CONSECUENCIAS DEL DESPLAZAMIENTO?</button>
+                    <button id="exit-btn" style="display:none; background:#004411; border:1px solid var(--green); color:white; padding:10px; cursor:pointer;" onclick="finalCerrado()">CERRAR SESIÓN</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="guaviare-tab" class="page-content">
+        <div class="data-container">
+            <h1>BASE DE DATOS: GUAVIARE</h1>
+            <div class="info-block">
+                <h2>Contexto Regional</h2>
+                <p>El Guaviare es un departamento ubicado en la región amazónica. Su historia está marcada por la colonización, la riqueza natural y el impacto de los conflictos por el territorio.</p>
+            </div>
+            <div class="info-block">
+                <h2>Reclutamiento Forzado</h2>
+                <p>Esta es una de las vulneraciones más graves. Los grupos armados aprovechan la falta de infraestructura educativa y el aislamiento para vincular menores a sus filas.</p>
+            </div>
+            <div class="info-block">
+                <h2>Impacto en el Pueblo Nukak</h2>
+                <p>Al ser el último pueblo nómada contactado en Colombia, el reclutamiento de sus jóvenes representa un riesgo inminente de extinción cultural y física.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="login-screen">
+        <div class="login-box">
+            <h2 style="color:var(--green); margin-bottom:20px; font-size:0.8rem;">ACCESO SEGURO</h2>
+            <input type="text" id="user" placeholder="USUARIO" style="width:100%; background:transparent; border:1px solid var(--green); padding:10px; color:white; margin-bottom:10px;">
+            <input type="password" id="pass" placeholder="CONTRASEÑA" style="width:100%; background:transparent; border:1px solid var(--green); padding:10px; color:white;">
+            <button class="btn-login" onclick="validateLogin()">DESCIFRAR</button>
+        </div>
+    </div>
+
+    <div id="scanner-overlay">
+        <div class="scan-line-box"><div class="scan-bar"></div></div>
+        <p style="color:var(--green); margin-top:15px;">[ESCANEANDO BIOMETRÍA]</p>
+    </div>
+
+    <div id="intro-screen">
+        <div id="n1" class="name-container"><div class="names">DIEGO REYES</div></div>
+        <div id="n2" class="name-container"><div class="names">SHARITH ROJAS</div></div>
+        <div id="n3" class="name-container"><div class="names">DANNA LUCIA</div></div>
+        <div id="g1" class="grade">GRADO 10D</div>
+    </div>
+
+    <script>
+        const vault = {
+            1: "The primary causes include a lack of educational and job opportunities, leaving youth in economic vulnerability. Armed groups exploit this with false promises.",
+            2: "The impact on the Nukak people is devastating. Cultural knowledge transmission is severed, threatening their physical existence as youth are taken away.",
+            3: "Forced recruitment drives mass displacement. Families flee their homes to protect their children, leading to extreme urban poverty."
+        };
+
+        let resolved = new Set();
+
+        function speak(text, lang = 'es-ES') {
+            window.speechSynthesis.cancel();
+            const msg = new SpeechSynthesisUtterance(text);
+            msg.lang = lang;
+            window.speechSynthesis.speak(msg);
+        }
+
+        function validateLogin() {
+            if(document.getElementById('user').value === "10D" && document.getElementById('pass').value === "2026") {
+                runSequence();
+            } else alert("DENEGADO");
+        }
+
+        async function runSequence() {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('scanner-overlay').style.display = 'flex';
+            await new Promise(r => setTimeout(r, 2000));
+            
+            document.getElementById('scanner-overlay').style.display = 'none';
+            document.getElementById('intro-screen').style.display = 'flex';
+            
+            // VOZ EN ESPAÑOL
+            speak("Bienvenidos compañeros a nuestra exposición. Iniciando protocolos del sistema.");
+
+            setTimeout(() => document.getElementById('n1').classList.add('show-element'), 500);
+            setTimeout(() => document.getElementById('n2').classList.add('show-element'), 1500);
+            setTimeout(() => document.getElementById('n3').classList.add('show-element'), 2500);
+            setTimeout(() => document.getElementById('g1').classList.add('show-element'), 3500);
+
+            setTimeout(() => {
+                document.getElementById('intro-screen').style.display = 'none';
+                document.getElementById('nav-tabs').style.display = 'flex';
+                document.getElementById('ia-tab').classList.add('page-active');
+            }, 6000);
+        }
+
+        function changeTab(type) {
+            document.querySelectorAll('.page-content').forEach(p => p.classList.remove('page-active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            if(type === 'ia') {
+                document.getElementById('ia-tab').classList.add('page-active');
+                document.querySelectorAll('.tab')[0].classList.add('active');
+            } else {
+                document.getElementById('guaviare-tab').classList.add('page-active');
+                document.querySelectorAll('.tab')[1].classList.add('active');
+            }
+            window.scrollTo(0,0);
+        }
+
+        async function startAI(id) {
+            speak(`Pregunta ${id} resuelta.`);
+            resolved.add(id);
+
+            const chat = document.getElementById('chat');
+            chat.innerHTML += `<div style="color:var(--green); margin-top:20px;">> DESCIFRANDO NODO 0${id}...</div>`;
+            const box = document.createElement('div');
+            box.className = 'ai-answer';
+            chat.appendChild(box);
+            
+            const text = vault[id];
+            for(let i = 0; i < text.length; i++) {
+                box.innerHTML += text.charAt(i);
+                chat.scrollTop = chat.scrollHeight;
+                await new Promise(r => setTimeout(r, 25));
+            }
+            if(resolved.size === 3) document.getElementById('exit-btn').style.display = 'block';
+        }
+
+        function finalCerrado() {
+            speak("Esta fue toda nuestra exposición, gracias por su atención y feliz día.");
+            document.getElementById('chat').innerHTML += `<div style="color:white; margin-top:20px; text-align:center; border:1px solid white; padding:10px;">[SESIÓN FINALIZADA]</div>`;
+        }
+
+        // Matrix
+        const canvas = document.getElementById('matrix');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        const drops = Array(Math.floor(canvas.width/20)).fill(1);
+        function draw() {
+            ctx.fillStyle = "rgba(0,0,0,0.1)"; ctx.fillRect(0,0,canvas.width,canvas.height);
+            ctx.fillStyle = "#00ff66"; ctx.font = "15px monospace";
+            drops.forEach((y, i) => {
+                ctx.fillText(Math.floor(Math.random()*2), i*20, y*20);
+                if(y*20 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            });
+        }
+        setInterval(draw, 50);
+    </script>
+</body>
+</html>
